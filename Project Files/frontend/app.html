@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DR Screening - RetinaGuard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            --primary: #8b5cf6;
+            --primary-dark: #7c3aed;
+            --primary-light: #a78bfa;
+            --accent-pink: #ec4899;
+            --accent-teal: #06b6d4;
+            --accent-gold: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+            --bg-gradient-alt: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --glass: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1a1f3a 0%, #2d1b3d 50%, #1a2f3a 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background particles - Different from landing page */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 15% 30%, rgba(6, 182, 212, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 85% 70%, rgba(139, 92, 246, 0.25) 0%, transparent 50%),
+                radial-gradient(circle at 50% 20%, rgba(245, 158, 11, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 30% 80%, rgba(236, 72, 153, 0.2) 0%, transparent 50%);
+            animation: float 25s ease-in-out infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(135deg, rgba(6, 182, 212, 0.08) 0%, rgba(139, 92, 246, 0.08) 50%, rgba(245, 158, 11, 0.08) 100%),
+                repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 100px,
+                    rgba(255, 255, 255, 0.01) 100px,
+                    rgba(255, 255, 255, 0.01) 200px
+                );
+            z-index: 0;
+            pointer-events: none;
+            animation: patternMove 20s linear infinite;
+        }
+        
+        @keyframes patternMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 200px 200px; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            border: 2px solid rgba(139, 92, 246, 0.5);
+            box-shadow: 
+                0 0 20px rgba(139, 92, 246, 0.6),
+                0 0 40px rgba(236, 72, 153, 0.4);
+            animation: pulse 2s ease-in-out infinite, neonLogo 3s ease-in-out infinite;
+        }
+        
+        @keyframes neonLogo {
+            0%, 100% {
+                box-shadow: 
+                    0 0 20px rgba(139, 92, 246, 0.6),
+                    0 0 40px rgba(236, 72, 153, 0.4);
+            }
+            50% {
+                box-shadow: 
+                    0 0 30px rgba(139, 92, 246, 0.9),
+                    0 0 60px rgba(236, 72, 153, 0.6),
+                    0 0 80px rgba(6, 182, 212, 0.4);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .logo-text {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            font-weight: 400;
+            text-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+        }
+
+        /* Main content grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 968px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Card styles */
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.4),
+                0 0 40px rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeInUp 0.8s ease-out;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 
+                0 25px 70px rgba(0, 0, 0, 0.5),
+                0 0 60px rgba(139, 92, 246, 0.3);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 28px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 13px;
+        }
+
+        /* Upload area */
+        .upload-area {
+            border: 3px dashed rgba(139, 92, 246, 0.5);
+            border-radius: 16px;
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 0 20px rgba(139, 92, 246, 0.3),
+                inset 0 0 20px rgba(139, 92, 246, 0.1);
+        }
+        
+        .upload-area:hover {
+            border-color: rgba(139, 92, 246, 0.8);
+            box-shadow: 
+                0 0 30px rgba(139, 92, 246, 0.5),
+                0 0 50px rgba(236, 72, 153, 0.3),
+                inset 0 0 30px rgba(139, 92, 246, 0.2);
+        }
+
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary-dark);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            transform: scale(1.02);
+        }
+
+        .upload-area.dragover {
+            border-color: var(--success);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
+            transform: scale(1.05);
+        }
+
+        .upload-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .upload-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 8px;
+            text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+        }
+
+        .upload-hint {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* Image preview */
+        .image-preview {
+            display: none;
+            margin-top: 20px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(139, 92, 246, 0.2);
+            animation: scaleIn 0.5s ease-out;
+            max-width: 100%;
+            max-height: 400px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 380px;
+            width: auto;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            border-radius: 12px;
+            object-fit: contain;
+        }
+
+        /* Prediction results */
+        .results {
+            display: none;
+            animation: fadeInUp 0.6s ease-out;
+            min-height: 300px;
+        }
+
+        .results.show {
+            display: block !important;
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .prediction-badge {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 24px 32px;
+            border-radius: 16px;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 32px;
+            animation: slideIn 0.5s ease-out;
+            width: 100%;
+            justify-content: flex-start;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .prediction-badge::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .prediction-badge:hover::before {
+            opacity: 1;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .prediction-badge.dr-detected {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.15));
+            color: #fee2e2;
+            border-color: rgba(239, 68, 68, 0.4);
+            box-shadow: 
+                0 4px 20px rgba(239, 68, 68, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        .prediction-badge.dr-detected #predictionIcon {
+            font-size: 32px;
+            filter: drop-shadow(0 2px 4px rgba(239, 68, 68, 0.3));
+        }
+
+        .prediction-badge.no-dr {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.15));
+            color: #d1fae5;
+            border-color: rgba(16, 185, 129, 0.4);
+            box-shadow: 
+                0 4px 20px rgba(16, 185, 129, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        .prediction-badge.no-dr #predictionIcon {
+            font-size: 32px;
+            filter: drop-shadow(0 2px 4px rgba(16, 185, 129, 0.3));
+        }
+
+        .probability-meter {
+            margin: 32px 0;
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .probability-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .probability-label span:last-child {
+            font-size: 28px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .meter-bar {
+            height: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .meter-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #f59e0b, #f97316, #ef4444);
+            border-radius: 20px;
+            transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .meter-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .meter-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: 800;
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.95);
+            z-index: 1;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+
+        .risk-low { 
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2)); 
+            color: #d1fae5; 
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+        }
+        .risk-borderline { 
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2)); 
+            color: #fef3c7; 
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+        }
+        .risk-moderate { 
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(234, 88, 12, 0.2)); 
+            color: #fed7aa; 
+            border: 1px solid rgba(249, 115, 22, 0.4);
+            box-shadow: 0 0 15px rgba(249, 115, 22, 0.2);
+        }
+        .risk-high { 
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2)); 
+            color: #fee2e2; 
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+        }
+        
+        .btn-reset {
+            transition: all 0.3s ease;
+        }
+        
+        .btn-reset:hover {
+            background: #dc2626 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        /* Loading spinner */
+        .spinner {
+            display: none;
+            width: 50px;
+            height: 50px;
+            margin: 20px auto;
+            border: 4px solid rgba(99, 102, 241, 0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .spinner.show {
+            display: block;
+        }
+
+        /* Button */
+        .btn {
+            background: var(--bg-gradient);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        /* Stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 32px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 24px 16px;
+            border-radius: 16px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            word-break: break-word;
+        }
+        
+        .stat-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(139, 92, 246, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(139, 92, 246, 0.15);
+        }
+
+        .stat-value {
+            font-size: clamp(24px, 4vw, 32px);
+            font-weight: 800;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            font-variant-numeric: tabular-nums;
+            line-height: 1.2;
+            word-break: break-all;
+            overflow-wrap: break-word;
+            max-width: 100%;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        /* Footer link */
+        .footer-link {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .footer-link a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        .footer-link a:hover {
+            color: white;
+            background: rgba(139, 92, 246, 0.2);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">👁️</div>
+                <div class="logo-text">RetinaGuard</div>
+            </div>
+            <p class="subtitle">AI-Powered Diabetic Retinopathy Screening</p>
+        </div>
+
+        <div class="main-grid">
+            <!-- Upload Card -->
+            <div class="card">
+                <div class="card-title">
+                    <span>📤</span>
+                    <span>Upload Retinal Image</span>
+                </div>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text">Drag & Drop Image Here</div>
+                    <div class="upload-hint">or click to browse (JPG, PNG, JPEG)</div>
+                    <input type="file" id="fileInput" accept="image/jpeg,image/jpg,image/png">
+                </div>
+
+                <div class="image-preview" id="imagePreview">
+                    <img id="previewImage" alt="Preview">
+                    <button class="btn-reset" id="resetBtn" onclick="resetUpload()" style="margin-top: 15px; padding: 10px 20px; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;">
+                        ↻ Upload New Image
+                    </button>
+                </div>
+
+                <div class="spinner" id="spinner"></div>
+            </div>
+
+            <!-- Results Card -->
+            <div class="card">
+                <div class="card-title">
+                    <span>🔬</span>
+                    <span>Prediction Results</span>
+                </div>
+
+                <div class="results" id="results">
+                    <div class="prediction-badge" id="predictionBadge">
+                        <span id="predictionIcon" style="font-size: 28px; display: flex; align-items: center;">⏳</span>
+                        <span id="predictionText" style="flex: 1;">Waiting for analysis...</span>
+                    </div>
+
+                    <div class="probability-meter">
+                        <div class="probability-label">
+                            <span>DR Probability</span>
+                            <span id="probabilityValue">0.0000</span>
+                        </div>
+                        <div class="meter-bar">
+                            <div class="meter-fill" id="meterFill" style="width: 0%"></div>
+                            <div class="meter-value" id="meterValue">0%</div>
+                        </div>
+                    </div>
+
+                    <div style="margin: 32px 0; padding: 20px; background: rgba(255, 255, 255, 0.03); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);">
+                        <div style="font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, 0.6); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">Risk Category</div>
+                        <span class="risk-badge" id="riskBadge" style="font-size: 18px; padding: 12px 24px; display: inline-block; margin-top: 4px;">-</span>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="thresholdValue">0.4</div>
+                            <div class="stat-label">Threshold</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="statusValue">-</div>
+                            <div class="stat-label">Status</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="emptyState" style="text-align: center; padding: 60px 20px; color: rgba(255, 255, 255, 0.6); min-height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <div style="font-size: 64px; margin-bottom: 20px; opacity: 0.5; filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.5));">🔍</div>
+                    <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px; color: rgba(255, 255, 255, 0.8);">No Results Yet</div>
+                    <div style="font-size: 14px; font-weight: 400; opacity: 0.7;">Upload an image to see prediction results</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-link">
+            <a href="/">← Back to Landing Page</a>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImage = document.getElementById('previewImage');
+        const results = document.getElementById('results');
+        const emptyState = document.getElementById('emptyState');
+        const spinner = document.getElementById('spinner');
+        const predictionBadge = document.getElementById('predictionBadge');
+        const predictionText = document.getElementById('predictionText');
+        const predictionIcon = document.getElementById('predictionIcon');
+        const probabilityValue = document.getElementById('probabilityValue');
+        const meterFill = document.getElementById('meterFill');
+        const meterValue = document.getElementById('meterValue');
+        const riskBadge = document.getElementById('riskBadge');
+        const thresholdValue = document.getElementById('thresholdValue');
+        const statusValue = document.getElementById('statusValue');
+        const resetBtn = document.getElementById('resetBtn');
+
+        // Reset function (make it global)
+        window.resetUpload = function() {
+            fileInput.value = '';
+            imagePreview.style.display = 'none';
+            results.classList.remove('show');
+            results.style.display = 'none';
+            emptyState.style.display = 'flex';
+            uploadArea.querySelector('.upload-icon').style.display = 'block';
+            uploadArea.querySelector('.upload-text').style.display = 'block';
+            uploadArea.querySelector('.upload-hint').style.display = 'block';
+        };
+
+        // Upload area click
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        // File input change
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+            if (!validTypes.includes(file.type)) {
+                alert('Please upload a valid image file (JPG, JPEG, or PNG)');
+                return;
+            }
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImage.src = e.target.result;
+                imagePreview.style.display = 'block';
+                // Hide upload area text when image is shown
+                uploadArea.querySelector('.upload-icon').style.display = 'none';
+                uploadArea.querySelector('.upload-text').style.display = 'none';
+                uploadArea.querySelector('.upload-hint').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+
+            // Predict
+            predict(file);
+        }
+
+        async function predict(file) {
+            // Show loading state
+            spinner.classList.add('show');
+            emptyState.style.display = 'none';
+            results.style.display = 'block';
+            results.classList.add('show');
+            predictionText.textContent = 'Analyzing...';
+            predictionIcon.textContent = '⏳';
+            
+            // Reset values
+            probabilityValue.textContent = '0.0000';
+            meterFill.style.width = '0%';
+            meterValue.textContent = '0%';
+            riskBadge.textContent = '-';
+            statusValue.textContent = '-';
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const response = await fetch('/api/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Prediction failed');
+                }
+
+                // Update UI with results
+                const prob = data.probability;
+                const hasDR = data.has_dr;
+                const riskCategory = data.risk_category;
+
+                // Prediction badge
+                if (hasDR) {
+                    predictionBadge.className = 'prediction-badge dr-detected';
+                    predictionIcon.textContent = '⚠️';
+                    predictionText.textContent = 'DR Detected';
+                } else {
+                    predictionBadge.className = 'prediction-badge no-dr';
+                    predictionIcon.textContent = '✅';
+                    predictionText.textContent = 'No DR';
+                }
+
+                // Probability
+                probabilityValue.textContent = prob.toFixed(4);
+                const probPercent = (prob * 100).toFixed(1);
+                meterFill.style.width = `${prob * 100}%`;
+                meterValue.textContent = `${probPercent}%`;
+
+                // Risk category
+                riskBadge.textContent = riskCategory;
+                riskBadge.className = 'risk-badge';
+                if (riskCategory === 'Low Risk') {
+                    riskBadge.classList.add('risk-low');
+                } else if (riskCategory === 'Borderline') {
+                    riskBadge.classList.add('risk-borderline');
+                } else if (riskCategory === 'Moderate Risk') {
+                    riskBadge.classList.add('risk-moderate');
+                } else {
+                    riskBadge.classList.add('risk-high');
+                }
+
+                // Status
+                statusValue.textContent = hasDR ? 'Positive' : 'Negative';
+                
+                // Ensure results are visible
+                results.style.display = 'block';
+                results.classList.add('show');
+                emptyState.style.display = 'none';
+
+            } catch (error) {
+                console.error('Error:', error);
+                predictionText.textContent = 'Error: ' + error.message;
+                predictionIcon.textContent = '❌';
+                predictionBadge.className = 'prediction-badge';
+                predictionBadge.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                predictionBadge.style.color = 'white';
+                results.style.display = 'block';
+                results.classList.add('show');
+                emptyState.style.display = 'none';
+            } finally {
+                spinner.classList.remove('show');
+            }
+        }
+    </script>
+</body>
+</html>
